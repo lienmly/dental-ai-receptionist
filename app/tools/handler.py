@@ -6,19 +6,7 @@ from app.services.calendar import (
     reschedule_appointment,
     cancel_appointment,
 )
-
-
-# Office info stays hardcoded (this becomes the config file in Phase 3)
-OFFICE_INFO = {
-    "hours": "Monday-Friday 8:00 AM - 5:00 PM, Saturday 9:00 AM - 2:00 PM, Sunday Closed",
-    "location": "123 Smile Ave, Suite 100, Portland, OR 97201",
-    "insurance": "We accept Delta Dental, Cigna, Aetna, MetLife, Guardian, and most PPO plans. Please call to verify your specific plan.",
-    "services": "General dentistry, cleanings, fillings, crowns, root canals, whitening, extractions, emergency care, and cosmetic consultations.",
-    "cancellation_policy": "Please cancel at least 24 hours in advance. Late cancellations may incur a $50 fee.",
-    "emergency_policy": "For dental emergencies during office hours, call us and we will fit you in same-day. After hours, call our emergency line at (503) 555-0199.",
-    "new_patient": "New patients are welcome! Your first visit includes a comprehensive exam, X-rays, and a cleaning. Please arrive 15 minutes early to complete paperwork.",
-    "payment_methods": "We accept cash, credit/debit cards, HSA/FSA, and offer payment plans through CareCredit.",
-}
+from app.config.loader import get_office_info_text
 
 
 def execute_tool(name: str, arguments: dict) -> str:
@@ -72,10 +60,8 @@ def execute_tool(name: str, arguments: dict) -> str:
 
         elif name == "get_office_info":
             topic = arguments.get("topic", "hours")
-            return json.dumps({
-                "topic": topic,
-                "info": OFFICE_INFO.get(topic, "Information not available."),
-            })
+            info = get_office_info_text(topic)
+            return json.dumps({"topic": topic, "info": info})
 
         return json.dumps({"error": f"Unknown tool: {name}"})
 

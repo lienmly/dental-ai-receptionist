@@ -4,6 +4,7 @@ from typing import Optional
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from app.config.settings import settings
+from app.config.loader import get_appointment_duration
 
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
@@ -58,7 +59,7 @@ def check_availability(date_str: str, appointment_type: Optional[str] = None) ->
         "extraction": 60,
         "root_canal": 120,
     }
-    slot_duration = durations.get(appointment_type, 30)
+    slot_duration = get_appointment_duration(appointment_type) if appointment_type else 30
 
     # Generate available slots every 30 minutes
     available = []
@@ -100,7 +101,7 @@ def book_appointment(
         "extraction": 60,
         "root_canal": 120,
     }
-    duration = durations.get(appointment_type, 30)
+    duration = get_appointment_duration(appointment_type)
 
     start_dt = datetime.fromisoformat(f"{date_str}T{time_str}:00")
     end_dt = start_dt + timedelta(minutes=duration)

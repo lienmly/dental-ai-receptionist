@@ -1,0 +1,82 @@
+office:
+  name: "Smile Dental Studio"
+  phone: "(503) 555-0100"
+  email: "hello@smiledentalstudio.com"
+  website: "https://smiledentalstudio.com"
+
+  location:
+    address: "123 Smile Ave, Suite 100"
+    city: "Portland"
+    state: "OR"
+    zip: "97201"
+
+  hours:
+    monday: "8:00 AM - 5:00 PM"
+    tuesday: "8:00 AM - 5:00 PM"
+    wednesday: "8:00 AM - 5:00 PM"
+    thursday: "8:00 AM - 5:00 PM"
+    friday: "8:00 AM - 5:00 PM"
+    saturday: "9:00 AM - 2:00 PM"
+    sunday: "Closed"
+
+  timezone: "America/Los_Angeles"
+
+providers:
+  - name: "Dr. Sarah Smith"
+    title: "DDS"
+    specialties: ["general", "cosmetic"]
+  - name: "Dr. Michael Johnson"
+    title: "DMD"
+    specialties: ["general", "pediatric"]
+  - name: "Lisa Chen"
+    title: "RDH"
+    specialties: ["hygiene"]
+
+appointment_types:
+  cleaning:
+    display_name: "Teeth Cleaning"
+    duration_minutes: 60
+    providers: ["Lisa Chen"]
+  consultation:
+    display_name: "New Patient Consultation"
+    duration_minutes: 30
+    providers: ["Dr. Sarah Smith", "Dr. Michael Johnson"]
+  emergency:
+    display_name: "Emergency Visit"
+    duration_minutes: 30
+    providers: ["Dr. Sarah Smith", "Dr. Michael Johnson"]
+  filling:
+    display_name: "Filling"
+    duration_minutes: 60
+    providers: ["Dr. Sarah Smith", "Dr. Michael Johnson"]
+  crown:
+    display_name: "Crown"
+    duration_minutes: 90
+    providers: ["Dr. Sarah Smith"]
+  whitening:
+    display_name: "Teeth Whitening"
+    duration_minutes: 60
+    providers: ["Lisa Chen"]
+  extraction:
+    display_name: "Tooth Extraction"
+    duration_minutes: 60
+    providers: ["Dr. Sarah Smith", "Dr. Michael Johnson"]
+  root_canal:
+    display_name: "Root Canal"
+    duration_minutes: 120
+    providers: ["Dr. Sarah Smith"]
+
+insurance:
+  accepted:
+    - "Delta Dental"
+    - "Cigna"
+    - "Aetna"
+    - "MetLife"
+    - "Guardian"
+  note: "We accept most PPO plans. Please call to verify your specific plan."
+
+policies:
+  cancellation: "Please cancel at least 24 hours in advance. Late cancellations may incur a $50 fee."
+  emergency: "For dental emergencies during office hours, call us and we will fit you in same-day. After hours, call our emergency line at (503) 555-0199."
+  new_patient: "New patients are welcome! Your first visit includes a comprehensive exam, X-rays, and a cleaning. Please arrive 15 minutes early to complete paperwork."
+  payment_methods: "We accept cash, credit/debit cards, HSA/FSA, and offer payment plans through CareCredit."
