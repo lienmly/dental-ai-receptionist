@@ -9,6 +9,7 @@ __pycache__/
 
 # Google service account key
 *.json
+service-account.json
 !package.json
 
 # IDE
