@@ -271,7 +271,8 @@
 
         .message-bubble p { margin-bottom: 8px; }
         .message-bubble p:last-child { margin-bottom: 0; }
-        .message-bubble strong { font-weight: 600; }
+        .message-bubble strong { font-weight: 600; color: var(--navy); }
+        .message.user .message-bubble strong { color: white; }
 
         /* Typing indicator */
         .typing-indicator {
@@ -410,7 +411,9 @@
     <!-- Header -->
     <header class="header">
         <div class="header-brand">
-            <div class="header-logo">🦷</div>
+            <div class="header-logo">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 6 4.5 6 7c0 3 1 5 1.5 8 .5 3 1 5 2.5 5s2-2 2-2 .5 2 2 2 2-2 2.5-5C17 12 18 10 18 7c0-2.5-2-5-6-5z"/></svg>
+            </div>
             <div>
                 <div class="header-title">Smile Dental Studio</div>
                 <div class="header-subtitle">AI Receptionist</div>
@@ -428,7 +431,9 @@
             <div class="messages" id="messages">
                 <!-- Welcome -->
                 <div class="welcome" id="welcome">
-                    <div class="welcome-icon">🦷</div>
+                    <div class="welcome-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--mint)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 6 4.5 6 7c0 3 1 5 1.5 8 .5 3 1 5 2.5 5s2-2 2-2 .5 2 2 2 2-2 2.5-5C17 12 18 10 18 7c0-2.5-2-5-6-5z"/></svg>
+                    </div>
                     <h2>Welcome to Smile Dental Studio</h2>
                     <p>I'm your AI receptionist. I can help you book appointments, answer questions, or check your insurance — just ask!</p>
                     <div class="quick-actions">
@@ -503,7 +508,11 @@
 
             const avatar = document.createElement('div');
             avatar.className = 'message-avatar';
-            avatar.textContent = role === 'assistant' ? '🦷' : 'You';
+            if (role === 'assistant') {
+                avatar.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--mint-dark)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 6 4.5 6 7c0 3 1 5 1.5 8 .5 3 1 5 2.5 5s2-2 2-2 .5 2 2 2 2-2 2.5-5C17 12 18 10 18 7c0-2.5-2-5-6-5z"/></svg>';
+            } else {
+                avatar.textContent = 'You';
+            }
 
             const bubble = document.createElement('div');
             bubble.className = 'message-bubble';
@@ -516,10 +525,16 @@
         }
 
         function formatText(text) {
-            // Convert markdown-like formatting to HTML
-            return text
+            // Convert markdown formatting to HTML
+            let html = text
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n\n/g, '</p><p>')
                 .replace(/\n/g, '<br>');
+
+            // Wrap in paragraph tags
+            html = '<p>' + html + '</p>';
+
+            return html;
         }
 
         function showTyping() {
@@ -527,7 +542,7 @@
             div.className = 'typing-indicator';
             div.id = 'typing';
             div.innerHTML = `
-                <div class="message-avatar">🦷</div>
+                <div class="message-avatar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--mint-dark)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 6 4.5 6 7c0 3 1 5 1.5 8 .5 3 1 5 2.5 5s2-2 2-2 .5 2 2 2 2-2 2.5-5C17 12 18 10 18 7c0-2.5-2-5-6-5z"/></svg></div>
                 <div class="typing-dots">
                     <span></span><span></span><span></span>
                 </div>
