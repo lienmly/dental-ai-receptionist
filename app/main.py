@@ -6,6 +6,7 @@ from app.services.llm import chat
 from app.tools.definitions import DENTAL_TOOLS
 from app.config.loader import build_system_prompt
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(
     title="Dental AI Receptionist",
@@ -27,12 +28,6 @@ class ChatRequest(BaseModel):
     message: str
     conversation_id: Optional[str] = "default"
 
-
-@app.get("/")
-async def root():
-    return {"status": "ok", "message": "Dental AI Receptionist is running"}
-
-
 @app.get("/health")
 async def health():
     return {"status": "healthy"}
@@ -53,3 +48,5 @@ async def chat_endpoint(request: ChatRequest):
     conversations[conv_id].append({"role": "assistant", "content": response.content})
 
     return {"reply": response.content, "conversation_id": conv_id}
+
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
