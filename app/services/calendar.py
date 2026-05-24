@@ -5,14 +5,24 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from app.config.settings import settings
 from app.config.loader import get_appointment_duration
+import json as json_module
 
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
 
 def get_calendar_service():
-    credentials = service_account.Credentials.from_service_account_file(
-        settings.google_service_account_file, scopes=SCOPES
-    )
+    """Build the Google Calendar service.
+    
+    Uses GOOGLE_SERVICE_ACCOUNT_JSON env var if available (for cloud deploy),
+    otherwise falls back to the local JSON file.
+    """
+    if settings.google_service_account_json:
+        info = json_module.loads(settings.google_service_account_json)
+        credentials = service_account.Credentials.from_service_account_info(info, scopes=SCOPES)
+    else:
+        credentials = service_account.Credentials.from_service_account_file(
+            settings.google_service_account_file, scopes=SCOPES
+        )
     return build("calendar", "v3", credentials=credentials)
 
 
