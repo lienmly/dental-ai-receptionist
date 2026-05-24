@@ -13,6 +13,18 @@ An AI-powered receptionist for dental offices that handles appointment booking, 
 - **Conversation memory** — maintains context across a multi-turn booking flow (collects name, phone, preferred time naturally)
 - **Config-driven** — swap a single YAML file to serve a different dental office
 
+<p align="center">
+  <img src="assets/chat-demo.png" width="600" alt="Chat UI Demo">
+  <br>
+  <em>AI receptionist booking a cleaning appointment</em>
+</p>
+
+<p align="center">
+  <img src="assets/calendar-demo.png" width="600" alt="Google Calendar Integration">
+  <br>
+  <em>Appointment automatically created on Google Calendar</em>
+</p>
+
 ## How It Works
 
 ```
