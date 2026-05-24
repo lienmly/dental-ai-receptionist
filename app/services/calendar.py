@@ -16,19 +16,42 @@ def get_calendar_service():
     return build("calendar", "v3", credentials=credentials)
 
 
-def check_availability(date_str: str, appointment_type: Optional[str] = None) -> list:
+def check_availability(date_str: str, appointment_type: Optional[str] = None) -> dict:
     """Get available slots for a given date.
 
-    Checks the calendar for existing events, then returns
-    open slots based on office hours (8:00 AM - 5:00 PM).
+    Returns a dict with available slots or an error message
+    for invalid dates (past, closed days).
     """
+    from app.config.loader import load_office_config, get_appointment_duration
+
+    config = load_office_config()
+    office = config["office"]
+
+    # Parse the requested date
+    try:
+        requested_date = datetime.fromisoformat(date_str).date()
+    except ValueError:
+        return {"error": f"Invalid date format: {date_str}. Use YYYY-MM-DD."}
+
+    # Check if date is in the past
+    from datetime import date as date_type
+    if requested_date < date_type.today():
+        return {"error": f"{date_str} is in the past. Please choose a future date."}
+
+    # Check if office is closed that day
+    day_name = requested_date.strftime("%A").lower()
+    day_hours = office["hours"].get(day_name, "Closed")
+    if day_hours == "Closed":
+        return {"error": f"The office is closed on {requested_date.strftime('%A')}s. Please choose another day."}
+
+    # Parse office hours for that day
+    open_time, close_time = day_hours.replace(" ", "").split("-")
+    day_start = datetime.combine(requested_date, _parse_time(open_time))
+    day_end = datetime.combine(requested_date, _parse_time(close_time))
+
     service = get_calendar_service()
 
-    # Define the day boundaries
-    day_start = datetime.fromisoformat(f"{date_str}T08:00:00")
-    day_end = datetime.fromisoformat(f"{date_str}T17:00:00")
-
-    # Get existing events for that day
+    # Get existing events for that day (use UTC)
     events_result = service.events().list(
         calendarId=settings.google_calendar_id,
         timeMin=day_start.isoformat() + "Z",
@@ -38,7 +61,6 @@ def check_availability(date_str: str, appointment_type: Optional[str] = None) ->
     ).execute()
     existing_events = events_result.get("items", [])
 
-    # Build list of busy times
     busy_times = []
     for event in existing_events:
         start = event["start"].get("dateTime", event["start"].get("date"))
@@ -48,20 +70,8 @@ def check_availability(date_str: str, appointment_type: Optional[str] = None) ->
             datetime.fromisoformat(end.replace("Z", "")),
         ))
 
-    # Determine slot duration based on appointment type
-    durations = {
-        "cleaning": 60,
-        "consultation": 30,
-        "emergency": 30,
-        "filling": 60,
-        "crown": 90,
-        "whitening": 60,
-        "extraction": 60,
-        "root_canal": 120,
-    }
     slot_duration = get_appointment_duration(appointment_type) if appointment_type else 30
 
-    # Generate available slots every 30 minutes
     available = []
     current = day_start
     while current + timedelta(minutes=slot_duration) <= day_end:
@@ -78,7 +88,18 @@ def check_availability(date_str: str, appointment_type: Optional[str] = None) ->
             })
         current += timedelta(minutes=30)
 
-    return available
+    return {"date": date_str, "available_slots": available, "total_available": len(available)}
+
+
+def _parse_time(time_str: str) -> datetime.time:
+    """Parse time strings like '8:00AM' or '5:00PM' into time objects."""
+    time_str = time_str.strip().upper()
+    for fmt in ("%I:%M%p", "%I:%M %p", "%H:%M"):
+        try:
+            return datetime.strptime(time_str, fmt).time()
+        except ValueError:
+            continue
+    raise ValueError(f"Cannot parse time: {time_str}")
 
 
 def book_appointment(

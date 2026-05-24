@@ -13,15 +13,11 @@ def execute_tool(name: str, arguments: dict) -> str:
     """Execute a tool call and return the result as a string."""
     try:
         if name == "check_availability":
-            slots = check_availability(
+            result = check_availability(
                 arguments["date"],
                 arguments.get("appointment_type"),
             )
-            return json.dumps({
-                "date": arguments["date"],
-                "available_slots": slots,
-                "total_available": len(slots),
-            })
+            return json.dumps(result)
 
         elif name == "book_appointment":
             result = book_appointment(

@@ -67,7 +67,10 @@ def build_system_prompt(today: str) -> str:
     hours_lines = [f"  {day.title()}: {time}" for day, time in office["hours"].items()]
     hours_text = "\n".join(hours_lines)
 
-    services = [f"  - {info['display_name']}" for info in config["appointment_types"].values()]
+    services = []
+    for key, info in config["appointment_types"].items():
+        providers = ", ".join(info.get("providers", []))
+        services.append(f"  - {info['display_name']} ({info['duration_minutes']} min) — providers: {providers}")
     services_text = "\n".join(services)
 
     insurance_list = ", ".join(config["insurance"]["accepted"])
@@ -86,4 +89,16 @@ Services:
 
 Accepted Insurance: {insurance_list}. {config['insurance']['note']}
 
-Help patients book, reschedule, and cancel appointments. Answer questions about the office. Always use the provided tools to look up real information rather than making things up. Be warm, professional, and concise."""
+Policies:
+  Cancellation: {config['policies']['cancellation']}
+  Emergency: {config['policies']['emergency']}
+  New Patients: {config['policies']['new_patient']}
+  Payment: {config['policies']['payment_methods']}
+
+IMPORTANT RULES:
+- Always use the provided tools to check real availability and book appointments. Never make up times or availability.
+- When a patient wants to book, collect: appointment type, preferred date/time, full name, and phone number. You can collect these naturally across multiple messages.
+- If a tool returns an error (like the office is closed that day), relay that information helpfully and suggest alternatives.
+- If a patient asks about something outside your scope (complex medical questions, specific treatment plans, billing disputes), say: "That's a great question — let me have our team get back to you. Can I take your name and number?"
+- Keep responses concise. No walls of text.
+- Do not use markdown tables. Use simple, natural formatting."""
