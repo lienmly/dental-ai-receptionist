@@ -52,20 +52,22 @@ async def chat_endpoint(request: ChatRequest):
 
 @app.post("/vapi/webhook")
 async def vapi_webhook(request: Request):
-    """Handle incoming Vapi webhook events (tool calls, status updates, etc.)."""
+    """Handle incoming Vapi webhook events."""
     body = await request.json()
     message = body.get("message", {})
     message_type = message.get("type")
 
-    # Only respond to tool-calls; ignore status updates, transcripts, etc.
     if message_type == "tool-calls":
         tool_call_list = message.get("toolCallList", [])
         results = []
 
         for tool_call in tool_call_list:
+            # Vapi nests name/arguments under "function"
+            function = tool_call.get("function", {})
+            name = function.get("name", tool_call.get("name", ""))
+            parameters = function.get("arguments", tool_call.get("parameters", {}))
+
             from app.tools.handler import execute_tool
-            name = tool_call.get("name", "")
-            parameters = tool_call.get("parameters", {})
             result = execute_tool(name, parameters)
             results.append({
                 "name": name,
@@ -75,7 +77,6 @@ async def vapi_webhook(request: Request):
 
         return {"results": results}
 
-    # All other event types — acknowledge but no action needed
     return {"status": "ok"}
 
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
