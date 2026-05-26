@@ -7,6 +7,7 @@ from app.tools.definitions import DENTAL_TOOLS
 from app.config.loader import build_system_prompt
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI, Request
 
 app = FastAPI(
     title="Dental AI Receptionist",
@@ -48,5 +49,33 @@ async def chat_endpoint(request: ChatRequest):
     conversations[conv_id].append({"role": "assistant", "content": response.content})
 
     return {"reply": response.content, "conversation_id": conv_id}
+
+@app.post("/vapi/webhook")
+async def vapi_webhook(request: Request):
+    """Handle incoming Vapi webhook events (tool calls, status updates, etc.)."""
+    body = await request.json()
+    message = body.get("message", {})
+    message_type = message.get("type")
+
+    # Only respond to tool-calls; ignore status updates, transcripts, etc.
+    if message_type == "tool-calls":
+        tool_call_list = message.get("toolCallList", [])
+        results = []
+
+        for tool_call in tool_call_list:
+            from app.tools.handler import execute_tool
+            name = tool_call.get("name", "")
+            parameters = tool_call.get("parameters", {})
+            result = execute_tool(name, parameters)
+            results.append({
+                "name": name,
+                "toolCallId": tool_call.get("id", ""),
+                "result": result,
+            })
+
+        return {"results": results}
+
+    # All other event types — acknowledge but no action needed
+    return {"status": "ok"}
 
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
